@@ -36,6 +36,13 @@ sty.textContent = `
   ::-webkit-scrollbar{width:5px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:rgba(128,128,128,0.25);border-radius:3px}
+  @media print{
+    *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;animation:none!important;transition:none!important;}
+    canvas{display:none!important;}
+    [data-np]{display:none!important;}
+    body{overflow:visible!important;}
+    section{page-break-inside:avoid;break-inside:avoid;}
+  }
 `;
 document.head.appendChild(sty);
 
@@ -308,7 +315,7 @@ function MusicPlayer({accent,text,isDark}){
   },[playing]);
 
   return(
-    <button onClick={toggle} style={{
+    <button data-np="1" onClick={toggle} style={{
       position:"fixed",bottom:24,right:24,zIndex:1000,
       width:52,height:52,borderRadius:"50%",
       background:isDark?"rgba(0,0,0,0.6)":"rgba(255,255,255,0.8)",
@@ -345,7 +352,7 @@ function ConfettiBurst({active,colors}){
     rot:Math.random()*360,
   }));
   return(
-    <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999,overflow:"hidden"}}>
+    <div data-np="1" style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999,overflow:"hidden"}}>
       {pieces.map(p=>(
         <div key={p.id} style={{
           position:"absolute",top:-10,left:`${p.x}%`,
@@ -397,7 +404,7 @@ function TemplateSelector({onSelect}){
           <p style={{color:"rgba(240,222,180,0.45)",fontSize:12,letterSpacing:8,textTransform:"uppercase",marginBottom:16,fontFamily:"'Raleway',sans-serif",fontWeight:300}}>✦ Digital Wedding Invitations ✦</p>
           <h1 style={{color:"#f0deb4",fontSize:"clamp(36px,6vw,64px)",fontWeight:400,lineHeight:1.15,fontFamily:"'Playfair Display',serif"}}>Choose Your<br/><em style={{fontStyle:"italic",color:"#c9a96e"}}>Love Story</em></h1>
           <p style={{color:"rgba(240,222,180,0.4)",fontSize:15,marginTop:16,maxWidth:480,margin:"16px auto 0",fontFamily:"'Raleway',sans-serif",fontWeight:300,lineHeight:1.7}}>
-            9 handcrafted templates with animated backgrounds, music, RSVP, countdown & more
+            9 handcrafted templates with animated backgrounds, music, countdown & more
           </p>
         </div>
 
@@ -539,24 +546,54 @@ function Editor({t,couple:c,setCouple:sC,events:ev,setEvents:sE,onPreview,onBack
 }
 
 /* ═══════════════════════════════════════════════════════════
+   DOWNLOAD PDF BUTTON
+   ═══════════════════════════════════════════════════════════ */
+function DownloadPDF({accent,isDark}){
+  const[hover,setHover]=useState(false);
+  const handlePrint=()=>{
+    const title=document.title;
+    document.title="Wedding Invitation";
+    try{window.print();}catch(e){console.warn("Print failed:",e);}
+    document.title=title;
+  };
+  return(
+    <button data-np="1" onClick={handlePrint}
+      onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}
+      title="Download as PDF"
+      style={{
+        position:"fixed",bottom:88,right:24,zIndex:1000,
+        width:52,height:52,borderRadius:"50%",
+        background:isDark?"rgba(0,0,0,0.6)":"rgba(255,255,255,0.8)",
+        backdropFilter:"blur(12px)",
+        border:`1.5px solid ${accent}50`,
+        cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
+        boxShadow:`0 4px 24px rgba(0,0,0,0.3)`,
+        transform:hover?"scale(1.12)":"scale(1)",
+        transition:"transform 0.3s",
+      }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    FULL INVITATION PREVIEW (PHASE 3)
    ═══════════════════════════════════════════════════════════ */
 function Preview({t,couple:c,events:ev,onBack}){
   const cd=useCountdown(c.date+"T"+c.time);
   const scrollY=useParallax();
   const[opened,setOpened]=useState(false);
-  const[rsvp,setRsvp]=useState({name:"",att:"",guests:"1",msg:"",meal:"",song:""});
-  const[sent,setSent]=useState(false);
   const[confetti,setConfetti]=useState(false);
-  const[activeEvent,setActiveEvent]=useState(null);
   const dk=isDarkBg(t.bg);
   const btnC=dk?"#0a0a0a":"#fff";
 
   const secPad={padding:"90px 20px",maxWidth:720,margin:"0 auto",position:"relative",zIndex:2};
   const hdg={fontFamily:t.fontD,color:t.accent,fontSize:"clamp(26px,4vw,40px)",fontWeight:400,textAlign:"center",marginBottom:10};
   const sub={fontFamily:t.fontB,color:t.text,opacity:0.6,textAlign:"center",fontSize:15,lineHeight:1.8};
-  const inpS={width:"100%",padding:"14px 16px",background:dk?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.04)",border:t.border,borderRadius:10,color:t.text,fontSize:15,fontFamily:t.fontB,outline:"none"};
-  const labS={display:"block",color:t.accent,fontSize:11,letterSpacing:2.5,textTransform:"uppercase",marginBottom:8,fontFamily:t.fontB};
 
   // ─── ENVELOPE OPENING ───
   if(!opened){
@@ -608,6 +645,7 @@ function Preview({t,couple:c,events:ev,onBack}){
     <div style={{background:t.bg,minHeight:"100vh",fontFamily:t.fontB,color:t.text,position:"relative",overflow:"hidden"}}>
       <ParticleBg type={t.particles} accent={t.accent}/>
       <MusicPlayer accent={t.accent} text={t.text} isDark={dk}/>
+      <DownloadPDF accent={t.accent} isDark={dk}/>
       <ConfettiBurst active={confetti} colors={[t.accent,t.accent2,"#fff"]}/>
 
       {/* ─── HERO ─── */}
@@ -654,7 +692,7 @@ function Preview({t,couple:c,events:ev,onBack}){
           {c.dressCode && <p style={{fontSize:12,opacity:0.35,marginTop:8,letterSpacing:2}}>Dress Code: {c.dressCode}</p>}
         </div>
 
-        <div style={{position:"absolute",bottom:40,animation:"float 3s ease infinite",zIndex:2}}>
+        <div data-np="1" style={{position:"absolute",bottom:40,animation:"float 3s ease infinite",zIndex:2}}>
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,opacity:0.3}}>
             <span style={{fontSize:11,letterSpacing:3,textTransform:"uppercase"}}>Scroll</span>
             <span style={{fontSize:22}}>↓</span>
@@ -701,63 +739,50 @@ function Preview({t,couple:c,events:ev,onBack}){
         </section>
       )}
 
-      {/* ─── EVENTS TIMELINE ─── */}
-      {ev.length>0&&(
-        <section style={secPad}>
-          <Anim><h2 style={hdg}>Wedding Events</h2><Div t={t}/></Anim>
-          <div style={{marginTop:40,position:"relative"}}>
-            {/* Vertical line */}
-            <div style={{position:"absolute",left:28,top:0,bottom:0,width:2,background:`linear-gradient(180deg,transparent,${t.accent}25,${t.accent}25,transparent)`}}/>
-            {ev.map((e,i)=>(
-              <Anim key={i} delay={i*0.12}>
-                <div
-                  onClick={()=>setActiveEvent(activeEvent===i?null:i)}
-                  style={{
-                    display:"flex",gap:24,marginBottom:20,cursor:"pointer",
-                    marginLeft:0,position:"relative",
-                  }}>
-                  {/* Timeline dot */}
-                  <div style={{
-                    width:56,height:56,minWidth:56,borderRadius:"50%",
-                    background:activeEvent===i?`linear-gradient(135deg,${t.accent},${t.accent2})`:t.card,
-                    border:t.border,display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize:24,position:"relative",zIndex:2,
-                    transition:"all 0.4s",
-                    boxShadow:activeEvent===i?`0 0 24px ${t.accent}30`:"none",
-                  }}>
-                    {e.icon}
-                  </div>
-                  {/* Card */}
-                  <div style={{
-                    flex:1,background:t.card,border:t.border,borderRadius:14,
-                    padding:activeEvent===i?"24px":"20px 24px",
-                    backdropFilter:"blur(8px)",
-                    transition:"all 0.4s",
-                    boxShadow:activeEvent===i?`0 8px 32px rgba(0,0,0,0.2)`:"none",
-                  }}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <h4 style={{fontFamily:t.fontD,color:t.accent,fontSize:activeEvent===i?20:17,fontWeight:400,transition:"font-size 0.3s"}}>{e.name}</h4>
-                      <span style={{fontSize:18,opacity:0.3,transform:activeEvent===i?"rotate(180deg)":"rotate(0)",transition:"transform 0.3s"}}>⌄</span>
-                    </div>
-                    <p style={{fontSize:13,opacity:0.5,marginTop:6}}>{fmtDate(e.date)} · {e.time&&fmtTime(e.time)}</p>
-                    {/* Expandable details */}
-                    <div style={{
-                      maxHeight:activeEvent===i?200:0,overflow:"hidden",
-                      transition:"max-height 0.5s ease, opacity 0.3s",
-                      opacity:activeEvent===i?1:0,
-                    }}>
-                      <div style={{paddingTop:14,borderTop:`1px solid ${t.accent}15`,marginTop:14}}>
-                        <p style={{fontSize:14,opacity:0.6,marginBottom:6}}>📍 {e.venue}</p>
-                        {e.desc&&<p style={{fontSize:14,opacity:0.5,fontStyle:"italic"}}>{e.desc}</p>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Anim>
-            ))}
-          </div>
+      {/* ─── EVENTS (one full page per event) ─── */}
+      {ev.length>0&&ev.map((e,i)=>(
+        <section key={i} style={{
+          minHeight:"100vh",display:"flex",flexDirection:"column",
+          alignItems:"center",justifyContent:"center",
+          padding:"80px 20px",position:"relative",zIndex:2,
+          borderTop:`1px solid ${t.accent}08`,
+        }}>
+          {/* Decorative background rings */}
+          <div style={{position:"absolute",width:"clamp(320px,55vw,480px)",height:"clamp(320px,55vw,480px)",border:`1px solid ${t.accent}08`,borderRadius:"50%",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
+          <div style={{position:"absolute",width:"clamp(440px,72vw,640px)",height:"clamp(440px,72vw,640px)",border:`1px solid ${t.accent}04`,borderRadius:"50%",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
+
+          <Anim style={{width:"100%",maxWidth:560,textAlign:"center"}}>
+            {/* Large ghost number */}
+            <p style={{fontFamily:t.fontD,fontSize:"clamp(80px,14vw,120px)",fontWeight:400,color:t.accent,opacity:0.05,lineHeight:1,marginBottom:-30,userSelect:"none",pointerEvents:"none"}}>0{i+1}</p>
+            {/* Icon */}
+            <div style={{fontSize:"clamp(60px,9vw,84px)",marginBottom:28,lineHeight:1,animation:"float 4s ease infinite",display:"block"}}>{e.icon}</div>
+            {/* Card */}
+            <div style={{background:t.card,border:t.border,borderRadius:28,padding:"48px clamp(24px,6vw,44px)",backdropFilter:"blur(16px)",position:"relative",overflow:"hidden",boxShadow:`0 24px 60px rgba(0,0,0,0.18)`}}>
+              <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,transparent,${t.accent}70,${t.accent2}70,transparent)`}}/>
+              {/* Event name */}
+              <h2 style={{fontFamily:t.fontD,color:t.accent,fontSize:"clamp(28px,4.5vw,46px)",fontWeight:400,letterSpacing:2,marginBottom:0,lineHeight:1.15}}>{e.name}</h2>
+              <Div t={t}/>
+              {/* Date & time pill */}
+              <div style={{display:"inline-flex",alignItems:"center",gap:10,background:`linear-gradient(135deg,${t.accent}14,${t.accent2}14)`,border:t.border,borderRadius:30,padding:"11px 28px",marginBottom:26,flexWrap:"wrap",justifyContent:"center"}}>
+                <span style={{color:t.accent,fontSize:14,fontFamily:t.fontB,letterSpacing:0.5}}>📅 {fmtDate(e.date)}</span>
+                {e.time&&<><span style={{color:t.accent,opacity:0.3}}>·</span><span style={{color:t.accent,fontSize:14,fontFamily:t.fontB}}>🕐 {fmtTime(e.time)}</span></>}
+              </div>
+              {/* Venue */}
+              {e.venue&&<p style={{...sub,fontSize:15,marginBottom:e.desc?10:0}}>📍 {e.venue}</p>}
+              {/* Description */}
+              {e.desc&&<p style={{...sub,fontStyle:"italic",marginTop:4}}>{e.desc}</p>}
+              <div style={{position:"absolute",bottom:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${t.accent}25,transparent)`}}/>
+            </div>
+            {/* Scroll cue between events */}
+            {i<ev.length-1&&(
+              <div style={{marginTop:36,display:"flex",flexDirection:"column",alignItems:"center",gap:6,opacity:0.18}}>
+                <div style={{width:1,height:36,background:t.accent}}/>
+                <span style={{fontSize:9,letterSpacing:4,color:t.accent,textTransform:"uppercase"}}>Next</span>
+              </div>
+            )}
+          </Anim>
         </section>
-      )}
+      ))}
 
       {/* ─── VENUE ─── */}
       <section style={secPad}>
@@ -832,85 +857,6 @@ function Preview({t,couple:c,events:ev,onBack}){
         </Anim>
       </section>
 
-      {/* ─── RSVP ─── */}
-      <section style={secPad}>
-        <Anim>
-          <h2 style={hdg}>RSVP</h2>
-          <Div t={t}/>
-          <p style={sub}>Kindly respond by {fmtDate(new Date(new Date(c.date).getTime()-30*864e5).toISOString().split("T")[0])}</p>
-
-          {sent?(
-            <div style={{background:t.card,border:t.border,borderRadius:20,padding:52,textAlign:"center",marginTop:32,backdropFilter:"blur(8px)"}}>
-              <span style={{fontSize:56,display:"block",marginBottom:20,animation:"heartbeat 1.5s ease infinite"}}>💕</span>
-              <h3 style={{fontFamily:t.fontD,color:t.accent,fontSize:26,marginBottom:14}}>Thank You!</h3>
-              <p style={{color:t.text,opacity:0.55,fontSize:16,lineHeight:1.8}}>Your response has been recorded.<br/>We can't wait to celebrate with you!</p>
-              <div style={{marginTop:24,padding:"16px 24px",background:dk?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",borderRadius:12,display:"inline-block"}}>
-                <p style={{fontSize:13,opacity:0.4}}>Add to your calendar</p>
-                <div style={{display:"flex",gap:12,marginTop:8,justifyContent:"center"}}>
-                  <span style={{fontSize:11,color:t.accent,cursor:"pointer",letterSpacing:1}}>📅 Google</span>
-                  <span style={{fontSize:11,color:t.accent,cursor:"pointer",letterSpacing:1}}>🍎 Apple</span>
-                </div>
-              </div>
-            </div>
-          ):(
-            <div style={{background:t.card,border:t.border,borderRadius:20,padding:32,marginTop:32,backdropFilter:"blur(8px)"}}>
-              <div style={{marginBottom:18}}>
-                <label style={labS}>Your Name *</label>
-                <input style={inpS} value={rsvp.name} onChange={e=>setRsvp({...rsvp,name:e.target.value})} placeholder="Full name"/>
-              </div>
-              <div style={{marginBottom:18}}>
-                <label style={labS}>Will You Attend? *</label>
-                <div style={{display:"flex",gap:10}}>
-                  {[["joyfully","🎉 Joyfully Accept"],["regretfully","💔 Regretfully Decline"]].map(([k,l])=>(
-                    <button key={k} onClick={()=>setRsvp({...rsvp,att:k})} style={{
-                      flex:1,padding:"15px 12px",
-                      background:rsvp.att===k?`linear-gradient(135deg,${t.accent},${t.accent2})`:"transparent",
-                      color:rsvp.att===k?btnC:t.text,border:t.border,borderRadius:10,
-                      cursor:"pointer",fontSize:14,fontFamily:t.fontB,transition:"all 0.3s",
-                      boxShadow:rsvp.att===k?`0 4px 20px ${t.accent}25`:"none",
-                    }}>{l}</button>
-                  ))}
-                </div>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:18}}>
-                <div>
-                  <label style={labS}>Guests</label>
-                  <select style={inpS} value={rsvp.guests} onChange={e=>setRsvp({...rsvp,guests:e.target.value})}>
-                    {[1,2,3,4,5].map(n=><option key={n} value={n}>{n} {n===1?"Guest":"Guests"}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={labS}>Meal Preference</label>
-                  <select style={inpS} value={rsvp.meal} onChange={e=>setRsvp({...rsvp,meal:e.target.value})}>
-                    <option value="">Select...</option>
-                    <option>Vegetarian</option><option>Non-Vegetarian</option><option>Vegan</option><option>Jain</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{marginBottom:18}}>
-                <label style={labS}>Song Request 🎵</label>
-                <input style={inpS} value={rsvp.song} onChange={e=>setRsvp({...rsvp,song:e.target.value})} placeholder="What song gets you on the dance floor?"/>
-              </div>
-              <div style={{marginBottom:22}}>
-                <label style={labS}>Message for the Couple</label>
-                <textarea rows={3} style={{...inpS,resize:"vertical"}} value={rsvp.msg} onChange={e=>setRsvp({...rsvp,msg:e.target.value})} placeholder="Your wishes & love..."/>
-              </div>
-              <button onClick={()=>{if(rsvp.name&&rsvp.att){setSent(true);setConfetti(true);setTimeout(()=>setConfetti(false),3000);}}}
-                style={{
-                  width:"100%",padding:"18px",
-                  background:rsvp.name&&rsvp.att?`linear-gradient(135deg,${t.accent},${t.accent2})`:`${t.accent}30`,
-                  color:btnC,border:"none",borderRadius:12,fontSize:15,fontFamily:t.fontD,
-                  letterSpacing:4,textTransform:"uppercase",
-                  cursor:rsvp.name&&rsvp.att?"pointer":"default",transition:"all 0.3s",
-                  boxShadow:rsvp.name&&rsvp.att?`0 6px 28px ${t.accent}30`:"none",
-                }}>
-                Send RSVP ✨
-              </button>
-            </div>
-          )}
-        </Anim>
-      </section>
-
       {/* ─── FOOTER ─── */}
       <section style={{padding:"70px 20px 90px",textAlign:"center",position:"relative",zIndex:2}}>
         <Anim>
@@ -923,7 +869,7 @@ function Preview({t,couple:c,events:ev,onBack}){
           <p style={{color:t.text,opacity:0.35,fontSize:14}}>{fmtDate(c.date)}</p>
           <Div t={t}/>
           <p style={{color:t.text,opacity:0.25,fontSize:12,letterSpacing:3}}>MADE WITH ♡</p>
-          <div style={{marginTop:28,display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
+          <div data-np="1" style={{marginTop:28,display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
             <button onClick={onBack} style={{background:"none",border:`1px solid ${t.accent}25`,color:t.accent,padding:"10px 24px",borderRadius:8,cursor:"pointer",fontSize:12,fontFamily:t.fontB,letterSpacing:2,opacity:0.5,transition:"opacity 0.3s"}}
               onMouseEnter={e=>e.currentTarget.style.opacity="0.9"}
               onMouseLeave={e=>e.currentTarget.style.opacity="0.5"}
