@@ -36,6 +36,13 @@ sty.textContent = `
   ::-webkit-scrollbar{width:5px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:rgba(128,128,128,0.25);border-radius:3px}
+  @media print{
+    *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;animation:none!important;transition:none!important;}
+    canvas{display:none!important;}
+    [data-np]{display:none!important;}
+    body{overflow:visible!important;}
+    section{page-break-inside:avoid;break-inside:avoid;}
+  }
 `;
 document.head.appendChild(sty);
 
@@ -308,7 +315,7 @@ function MusicPlayer({accent,text,isDark}){
   },[playing]);
 
   return(
-    <button onClick={toggle} style={{
+    <button data-np="1" onClick={toggle} style={{
       position:"fixed",bottom:24,right:24,zIndex:1000,
       width:52,height:52,borderRadius:"50%",
       background:isDark?"rgba(0,0,0,0.6)":"rgba(255,255,255,0.8)",
@@ -345,7 +352,7 @@ function ConfettiBurst({active,colors}){
     rot:Math.random()*360,
   }));
   return(
-    <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999,overflow:"hidden"}}>
+    <div data-np="1" style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999,overflow:"hidden"}}>
       {pieces.map(p=>(
         <div key={p.id} style={{
           position:"absolute",top:-10,left:`${p.x}%`,
@@ -539,6 +546,41 @@ function Editor({t,couple:c,setCouple:sC,events:ev,setEvents:sE,onPreview,onBack
 }
 
 /* ═══════════════════════════════════════════════════════════
+   DOWNLOAD PDF BUTTON
+   ═══════════════════════════════════════════════════════════ */
+function DownloadPDF({accent,isDark}){
+  const[hover,setHover]=useState(false);
+  const handlePrint=()=>{
+    const title=document.title;
+    document.title="Wedding Invitation";
+    try{window.print();}catch(e){console.warn("Print failed:",e);}
+    document.title=title;
+  };
+  return(
+    <button data-np="1" onClick={handlePrint}
+      onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}
+      title="Download as PDF"
+      style={{
+        position:"fixed",bottom:88,right:24,zIndex:1000,
+        width:52,height:52,borderRadius:"50%",
+        background:isDark?"rgba(0,0,0,0.6)":"rgba(255,255,255,0.8)",
+        backdropFilter:"blur(12px)",
+        border:`1.5px solid ${accent}50`,
+        cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",
+        boxShadow:`0 4px 24px rgba(0,0,0,0.3)`,
+        transform:hover?"scale(1.12)":"scale(1)",
+        transition:"transform 0.3s",
+      }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    FULL INVITATION PREVIEW (PHASE 3)
    ═══════════════════════════════════════════════════════════ */
 function Preview({t,couple:c,events:ev,onBack}){
@@ -603,6 +645,7 @@ function Preview({t,couple:c,events:ev,onBack}){
     <div style={{background:t.bg,minHeight:"100vh",fontFamily:t.fontB,color:t.text,position:"relative",overflow:"hidden"}}>
       <ParticleBg type={t.particles} accent={t.accent}/>
       <MusicPlayer accent={t.accent} text={t.text} isDark={dk}/>
+      <DownloadPDF accent={t.accent} isDark={dk}/>
       <ConfettiBurst active={confetti} colors={[t.accent,t.accent2,"#fff"]}/>
 
       {/* ─── HERO ─── */}
@@ -649,7 +692,7 @@ function Preview({t,couple:c,events:ev,onBack}){
           {c.dressCode && <p style={{fontSize:12,opacity:0.35,marginTop:8,letterSpacing:2}}>Dress Code: {c.dressCode}</p>}
         </div>
 
-        <div style={{position:"absolute",bottom:40,animation:"float 3s ease infinite",zIndex:2}}>
+        <div data-np="1" style={{position:"absolute",bottom:40,animation:"float 3s ease infinite",zIndex:2}}>
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,opacity:0.3}}>
             <span style={{fontSize:11,letterSpacing:3,textTransform:"uppercase"}}>Scroll</span>
             <span style={{fontSize:22}}>↓</span>
@@ -826,7 +869,7 @@ function Preview({t,couple:c,events:ev,onBack}){
           <p style={{color:t.text,opacity:0.35,fontSize:14}}>{fmtDate(c.date)}</p>
           <Div t={t}/>
           <p style={{color:t.text,opacity:0.25,fontSize:12,letterSpacing:3}}>MADE WITH ♡</p>
-          <div style={{marginTop:28,display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
+          <div data-np="1" style={{marginTop:28,display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
             <button onClick={onBack} style={{background:"none",border:`1px solid ${t.accent}25`,color:t.accent,padding:"10px 24px",borderRadius:8,cursor:"pointer",fontSize:12,fontFamily:t.fontB,letterSpacing:2,opacity:0.5,transition:"opacity 0.3s"}}
               onMouseEnter={e=>e.currentTarget.style.opacity="0.9"}
               onMouseLeave={e=>e.currentTarget.style.opacity="0.5"}
