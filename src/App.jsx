@@ -143,14 +143,17 @@ const TEMPLATES = [
 ];
 
 const COUPLE_DEF = {
-  p1:"Priya",p2:"Arjun",date:"2026-12-12",time:"18:00",
+  p1:"Priya",brideLastName:"Sharma",p2:"Arjun",groomLastName:"Patel",
+  date:"2026-12-12",time:"18:00",
   venue:"The Grand Palace Gardens",addr:"42 Heritage Lane, Jaipur, Rajasthan",
   story:"We met at a coffee shop on a rainy afternoon. What started as a conversation about books turned into a lifetime of love. Two souls, one journey — and it begins here.",
-  parentsBride:"Mr. & Mrs. Sharma",parentsGroom:"Mr. & Mrs. Patel",
+  parentsBride:"Mr. Rajesh Sharma & Mrs. Sunita Sharma",parentsGroom:"Mr. Vikram Patel & Mrs. Meena Patel",
   dressCode:"Elegant Traditional",
+  rsvpPhone:"+91 98765 43210",rsvpEmail:"priyaarjun2026@gmail.com",rsvpBy:"2026-11-30",
 };
 const EVENTS_DEF = [
   {name:"Mehendi",date:"2026-12-10",time:"16:00",venue:"Sharma Residence",icon:"🌿",desc:"Celebrate with henna art & music"},
+  {name:"Haldi",date:"2026-12-11",time:"10:00",venue:"Sharma Residence",icon:"🌼",desc:"Blessings of turmeric & joyful beginnings"},
   {name:"Sangeet Night",date:"2026-12-11",time:"19:00",venue:"The Grand Palace Gardens",icon:"🎶",desc:"Dance the night away"},
   {name:"Wedding Ceremony",date:"2026-12-12",time:"18:00",venue:"The Grand Palace Gardens",icon:"💍",desc:"The sacred union"},
   {name:"Reception",date:"2026-12-12",time:"20:30",venue:"The Grand Palace Gardens",icon:"🥂",desc:"Toast to forever"},
@@ -496,17 +499,27 @@ function Editor({t,couple:c,setCouple:sC,events:ev,setEvents:sE,onPreview,onBack
         <Anim delay={0.1}><div style={sec}>
           <h3 style={{fontFamily:t.fontD,color:t.accent,fontSize:20,marginBottom:24}}>💍 The Couple</h3>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-            <div><label style={lab}>Partner 1</label><input style={inp} value={c.p1} onChange={e=>sC({...c,p1:e.target.value})}/></div>
-            <div><label style={lab}>Partner 2</label><input style={inp} value={c.p2} onChange={e=>sC({...c,p2:e.target.value})}/></div>
+            <div><label style={lab}>Bride's First Name</label><input style={inp} value={c.p1} onChange={e=>sC({...c,p1:e.target.value})}/></div>
+            <div><label style={lab}>Bride's Family Name</label><input style={inp} value={c.brideLastName||""} onChange={e=>sC({...c,brideLastName:e.target.value})}/></div>
+            <div><label style={lab}>Groom's First Name</label><input style={inp} value={c.p2} onChange={e=>sC({...c,p2:e.target.value})}/></div>
+            <div><label style={lab}>Groom's Family Name</label><input style={inp} value={c.groomLastName||""} onChange={e=>sC({...c,groomLastName:e.target.value})}/></div>
             <div><label style={lab}>Wedding Date</label><input type="date" style={inp} value={c.date} onChange={e=>sC({...c,date:e.target.value})}/></div>
             <div><label style={lab}>Time</label><input type="time" style={inp} value={c.time} onChange={e=>sC({...c,time:e.target.value})}/></div>
-            <div><label style={lab}>Bride's Family</label><input style={inp} value={c.parentsBride} onChange={e=>sC({...c,parentsBride:e.target.value})}/></div>
-            <div><label style={lab}>Groom's Family</label><input style={inp} value={c.parentsGroom} onChange={e=>sC({...c,parentsGroom:e.target.value})}/></div>
+            <div><label style={lab}>Bride's Parents</label><input style={inp} value={c.parentsBride} onChange={e=>sC({...c,parentsBride:e.target.value})}/></div>
+            <div><label style={lab}>Groom's Parents</label><input style={inp} value={c.parentsGroom} onChange={e=>sC({...c,parentsGroom:e.target.value})}/></div>
           </div>
           <div style={{marginTop:14}}><label style={lab}>Venue Name</label><input style={inp} value={c.venue} onChange={e=>sC({...c,venue:e.target.value})}/></div>
           <div style={{marginTop:14}}><label style={lab}>Venue Address</label><input style={inp} value={c.addr} onChange={e=>sC({...c,addr:e.target.value})}/></div>
           <div style={{marginTop:14}}><label style={lab}>Dress Code</label><input style={inp} value={c.dressCode} onChange={e=>sC({...c,dressCode:e.target.value})}/></div>
           <div style={{marginTop:14}}><label style={lab}>Your Love Story</label><textarea rows={3} style={{...inp,resize:"vertical"}} value={c.story} onChange={e=>sC({...c,story:e.target.value})}/></div>
+          <div style={{marginTop:24,paddingTop:20,borderTop:`1px solid ${t.accent}15`}}>
+            <h4 style={{fontFamily:t.fontD,color:t.accent,fontSize:16,marginBottom:16,opacity:0.85}}>📬 RSVP Details</h4>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+              <div><label style={lab}>Contact Phone</label><input style={inp} value={c.rsvpPhone||""} onChange={e=>sC({...c,rsvpPhone:e.target.value})}/></div>
+              <div><label style={lab}>Contact Email</label><input style={inp} value={c.rsvpEmail||""} onChange={e=>sC({...c,rsvpEmail:e.target.value})}/></div>
+              <div style={{gridColumn:"1/-1"}}><label style={lab}>RSVP By (Date)</label><input type="date" style={inp} value={c.rsvpBy||""} onChange={e=>sC({...c,rsvpBy:e.target.value})}/></div>
+            </div>
+          </div>
         </div></Anim>
 
         <Anim delay={0.2}><div style={sec}>
@@ -630,7 +643,7 @@ function Preview({t,couple:c,events:ev,onBack}){
               </div>
             </div>
             <p style={{color:t.accent,opacity:0.6,fontSize:16,marginTop:32,fontFamily:t.fontD}}>
-              {c.p1} & {c.p2}
+              {c.p1}{c.brideLastName?" "+c.brideLastName:""} & {c.p2}{c.groomLastName?" "+c.groomLastName:""}
             </p>
             <p style={{color:t.text,opacity:0.3,fontSize:12,marginTop:8}}>{fmtDate(c.date)}</p>
             <button onClick={onBack} style={{background:"none",border:"none",color:t.accent,cursor:"pointer",fontSize:12,marginTop:32,fontFamily:t.fontB,letterSpacing:2,opacity:0.4}}>← CHANGE TEMPLATE</button>
@@ -674,7 +687,7 @@ function Preview({t,couple:c,events:ev,onBack}){
 
         <div style={{animation:"fadeUp 1.2s ease 0.4s both",position:"relative",zIndex:2}}>
           <h1 style={{fontFamily:t.fontD,fontSize:"clamp(46px,9vw,88px)",fontWeight:400,color:t.accent,lineHeight:1.05,marginBottom:4,textShadow:`0 0 80px ${t.accent}15`}}>
-            {c.p1}
+            {c.p1}{c.brideLastName?" "+c.brideLastName:""}
           </h1>
           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,margin:"4px 0"}}>
             <div style={{width:50,height:1,background:`linear-gradient(90deg,transparent,${t.accent}60)`}}/>
@@ -682,7 +695,7 @@ function Preview({t,couple:c,events:ev,onBack}){
             <div style={{width:50,height:1,background:`linear-gradient(90deg,${t.accent}60,transparent)`}}/>
           </div>
           <h1 style={{fontFamily:t.fontD,fontSize:"clamp(46px,9vw,88px)",fontWeight:400,color:t.accent,lineHeight:1.05,textShadow:`0 0 80px ${t.accent}15`}}>
-            {c.p2}
+            {c.p2}{c.groomLastName?" "+c.groomLastName:""}
           </h1>
         </div>
 
@@ -857,6 +870,64 @@ function Preview({t,couple:c,events:ev,onBack}){
         </Anim>
       </section>
 
+      {/* ─── RSVP ─── */}
+      <section style={{
+        minHeight:"100vh",display:"flex",flexDirection:"column",
+        alignItems:"center",justifyContent:"center",
+        padding:"80px 20px",position:"relative",zIndex:2,
+        borderTop:`1px solid ${t.accent}08`,
+      }}>
+        {/* Decorative rings */}
+        <div style={{position:"absolute",width:"clamp(320px,55vw,480px)",height:"clamp(320px,55vw,480px)",border:`1px solid ${t.accent}08`,borderRadius:"50%",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",width:"clamp(440px,72vw,640px)",height:"clamp(440px,72vw,640px)",border:`1px solid ${t.accent}04`,borderRadius:"50%",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
+
+        <Anim style={{width:"100%",maxWidth:560,textAlign:"center"}}>
+          <div style={{fontSize:"clamp(52px,8vw,72px)",marginBottom:24,animation:"float 4s ease infinite"}}>📬</div>
+          <div style={{background:t.card,border:t.border,borderRadius:28,padding:"48px clamp(24px,6vw,44px)",backdropFilter:"blur(16px)",position:"relative",overflow:"hidden",boxShadow:`0 24px 60px rgba(0,0,0,0.18)`}}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,transparent,${t.accent}70,${t.accent2}70,transparent)`}}/>
+            <h2 style={{fontFamily:t.fontD,color:t.accent,fontSize:"clamp(28px,4.5vw,42px)",fontWeight:400,letterSpacing:2,marginBottom:0,lineHeight:1.15}}>RSVP</h2>
+            <Div t={t}/>
+            <p style={{...sub,fontSize:16,marginBottom:28,lineHeight:2}}>
+              Kindly confirm your attendance<br/>
+              {c.rsvpBy&&<><span style={{color:t.accent,opacity:0.8}}>by {fmtDate(c.rsvpBy)}</span><br/></>}
+              We would be honoured by your presence.
+            </p>
+            <div style={{display:"flex",flexDirection:"column",gap:14,alignItems:"center"}}>
+              {c.rsvpPhone&&(
+                <a href={`tel:${c.rsvpPhone}`} style={{
+                  display:"inline-flex",alignItems:"center",gap:10,
+                  padding:"14px 32px",background:`linear-gradient(135deg,${t.accent}18,${t.accent2}18)`,
+                  border:t.border,borderRadius:30,
+                  color:t.accent,textDecoration:"none",fontSize:15,fontFamily:t.fontB,
+                  letterSpacing:0.5,transition:"all 0.3s",width:"100%",justifyContent:"center",maxWidth:320,
+                }}
+                onMouseEnter={e=>e.currentTarget.style.transform="translateY(-2px)"}
+                onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
+                  <span style={{fontSize:18}}>📞</span> {c.rsvpPhone}
+                </a>
+              )}
+              {c.rsvpEmail&&(
+                <a href={`mailto:${c.rsvpEmail}`} style={{
+                  display:"inline-flex",alignItems:"center",gap:10,
+                  padding:"14px 32px",background:`linear-gradient(135deg,${t.accent}18,${t.accent2}18)`,
+                  border:t.border,borderRadius:30,
+                  color:t.accent,textDecoration:"none",fontSize:15,fontFamily:t.fontB,
+                  letterSpacing:0.5,transition:"all 0.3s",width:"100%",justifyContent:"center",maxWidth:320,
+                }}
+                onMouseEnter={e=>e.currentTarget.style.transform="translateY(-2px)"}
+                onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
+                  <span style={{fontSize:18}}>✉️</span> {c.rsvpEmail}
+                </a>
+              )}
+            </div>
+            <p style={{...sub,marginTop:28,fontSize:13,opacity:0.4,fontStyle:"italic"}}>
+              — {c.p1}{c.brideLastName?" "+c.brideLastName:""} &amp; {c.p2}{c.groomLastName?" "+c.groomLastName:""}
+            </p>
+            <div style={{position:"absolute",bottom:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${t.accent}25,transparent)`}}/>
+          </div>
+        </Anim>
+      </section>
+
       {/* ─── FOOTER ─── */}
       <section style={{padding:"70px 20px 90px",textAlign:"center",position:"relative",zIndex:2}}>
         <Anim>
@@ -864,7 +935,7 @@ function Preview({t,couple:c,events:ev,onBack}){
             <span style={{fontSize:40,display:"block",marginBottom:16}}>💒</span>
           </div>
           <p style={{fontFamily:t.fontD,color:t.accent,fontSize:"clamp(26px,4vw,40px)",fontWeight:400,marginBottom:12}}>
-            {c.p1} & {c.p2}
+            {c.p1}{c.brideLastName?" "+c.brideLastName:""} & {c.p2}{c.groomLastName?" "+c.groomLastName:""}
           </p>
           <p style={{color:t.text,opacity:0.35,fontSize:14}}>{fmtDate(c.date)}</p>
           <Div t={t}/>
