@@ -890,7 +890,7 @@ function Preview({t,couple:c,events:ev,onBack}){
             <p style={{...sub,fontSize:16,marginBottom:28,lineHeight:2}}>
               Kindly confirm your attendance<br/>
               {c.rsvpBy&&<><span style={{color:t.accent,opacity:0.8}}>by {fmtDate(c.rsvpBy)}</span><br/></>}
-              We would be honoured by your presence.
+              Your presence is our greatest blessing.
             </p>
             <div style={{display:"flex",flexDirection:"column",gap:14,alignItems:"center"}}>
               {c.rsvpPhone&&(
@@ -921,7 +921,7 @@ function Preview({t,couple:c,events:ev,onBack}){
               )}
             </div>
             <p style={{...sub,marginTop:28,fontSize:13,opacity:0.4,fontStyle:"italic"}}>
-              — {c.p1}{c.brideLastName?" "+c.brideLastName:""} &amp; {c.p2}{c.groomLastName?" "+c.groomLastName:""}
+              — Matha Family | Ronak Enterprises | Govind Enterprises
             </p>
             <div style={{position:"absolute",bottom:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${t.accent}25,transparent)`}}/>
           </div>
